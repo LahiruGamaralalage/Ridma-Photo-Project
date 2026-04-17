@@ -96,6 +96,7 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="space-y-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-4">
           <div className="w-full">
             <input
               type="text"
@@ -104,6 +105,21 @@ export default function OrdersPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-zinc-950 border border-white/10 text-white placeholder:text-white/40 rounded-none px-4 py-3 text-sm font-light outline-none focus:border-white/20 focus:ring-0"
             />
+          </div>
+          <div className="flex flex-col gap-1.5 w-full sm:w-auto sm:min-w-[160px]">
+            <span className="text-[10px] font-light text-white/40 tracking-wide">From</span>
+            <input
+              type="date"
+              className="w-full bg-zinc-950 border border-white/10 text-white rounded-none px-4 py-3 text-sm font-light outline-none focus:border-white/20 focus:ring-0 [color-scheme:dark]"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5 w-full sm:w-auto sm:min-w-[160px]">
+            <span className="text-[10px] font-light text-white/40 tracking-wide">To</span>
+            <input
+              type="date"
+              className="w-full bg-zinc-950 border border-white/10 text-white rounded-none px-4 py-3 text-sm font-light outline-none focus:border-white/20 focus:ring-0 [color-scheme:dark]"
+            />
+          </div>
           </div>
         <div className="bg-zinc-950 border border-white/5 overflow-hidden rounded-none overflow-x-auto">
           <Table>
