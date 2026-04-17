@@ -23,6 +23,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -85,6 +86,16 @@ export default function OrdersPage() {
           <p className="text-white/20 uppercase tracking-widest text-xs font-light italic">No orders found in the system.</p>
         </div>
       ) : (
+        <div className="space-y-4">
+          <div className="w-full">
+            <input
+              type="text"
+              placeholder="Search by customer name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-zinc-950 border border-white/10 text-white placeholder:text-white/40 rounded-none px-4 py-3 text-sm font-light outline-none focus:border-white/20 focus:ring-0"
+            />
+          </div>
         <div className="bg-zinc-950 border border-white/5 overflow-hidden rounded-none overflow-x-auto">
           <Table>
             <TableHeader className="bg-white/5">
@@ -153,6 +164,7 @@ export default function OrdersPage() {
               ))}
             </TableBody>
           </Table>
+        </div>
         </div>
       )}
 
