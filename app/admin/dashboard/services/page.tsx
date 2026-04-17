@@ -40,6 +40,7 @@ export default function ServicesPage() {
   const [editingService, setEditingService] = useState<any>(null);
   const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
 
   useEffect(() => {
     fetchServices();
@@ -234,6 +235,22 @@ export default function ServicesPage() {
             </form>
           </DialogContent>
         </Dialog>
+      </div>
+
+      <div className="w-full max-w-xs">
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="w-full bg-zinc-950 border border-white/10 text-white rounded-none px-4 py-3 text-sm font-light outline-none focus:border-white/20 focus:ring-0 [color-scheme:dark]"
+        >
+          <option value="All">All</option>
+          <option value="Photography">Photography</option>
+          <option value="Wildlife">Wildlife</option>
+          <option value="Landscape">Landscape</option>
+          <option value="Architectural">Architectural</option>
+          <option value="Travel">Travel</option>
+          <option value="Portrait">Portrait</option>
+        </select>
       </div>
 
       <div className="bg-zinc-950 border border-white/5 overflow-hidden rounded-none">
