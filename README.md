@@ -153,7 +153,7 @@ NEXT_PUBLIC_BASE_URL=https://ridma-photo.vercel.app
 
 ## 👥 Team Members
 
-- **Risindu Hewapathiranage** (Team Leader / Frontend Developer) - [email@example.com]
+- **Risindu Hewapathiranage** (Team Leader / Frontend Developer) - [r.hewapathiranage.10@student.scu.edu.au]
 - **Lahiru Gamaralalage** (Full-Stack Developer) - [l.gamaralalage.11@student.scu.edu.au]
 - **MD Anajbin Rahman** (Backend Developer) - [m.rahman.30@student.scu.edu.au]
 - **Chamod Mahawaththage Don** (QA & Documentation Specialist) - [chamod.peiris01@gmail.com]
