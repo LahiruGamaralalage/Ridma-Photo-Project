@@ -121,6 +121,10 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 ---
 
+Production (Vercel)
+
+NEXT_PUBLIC_BASE_URL=https://ridma-photo.vercel.app
+
 ## 🚦 Getting Started
 
 1. **Install dependencies:**
