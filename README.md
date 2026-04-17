@@ -142,3 +142,12 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 4. **Access the application:**
    - Main Site: [http://localhost:3000](http://localhost:3000)
    - Admin Panel: [http://localhost:3000/admin](http://localhost:3000/admin)
+
+---
+
+## 👥 Team Members
+
+- **Risindu Hewapathiranage** (Team Leader / Frontend Developer) - [email@example.com]
+- **Lahiru Gamaralalage** (Full-Stack Developer) - [email@example.com]
+- **MD Anajbin Rahman** (Backend Developer) - [email@example.com]
+- **Chamod Mahawaththage Don** (QA & Documentation Specialist) - [email@example.com]
