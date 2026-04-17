@@ -149,5 +149,5 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 - **Risindu Hewapathiranage** (Team Leader / Frontend Developer) - [email@example.com]
 - **Lahiru Gamaralalage** (Full-Stack Developer) - [l.gamaralalage.11@student.scu.edu.au]
-- **MD Anajbin Rahman** (Backend Developer) - [email@example.com]
+- **MD Anajbin Rahman** (Backend Developer) - [m.rahman.30@student.scu.edu.au]
 - **Chamod Mahawaththage Don** (QA & Documentation Specialist) - [chamod.peiris01@gmail.com]
