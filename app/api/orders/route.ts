@@ -5,7 +5,7 @@ import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getSession();
     if (!session) {
@@ -13,6 +13,10 @@ export async function GET() {
     }
 
     await connectToDatabase();
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    // TODO: Implement pagination in Sprint 2
     const orders = await Order.find().sort({ createdAt: -1 });
     return NextResponse.json(orders);
   } catch (error: any) {
