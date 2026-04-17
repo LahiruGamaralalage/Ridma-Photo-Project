@@ -74,11 +74,20 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <div className="space-y-4">
         <span className="text-white/40 tracking-[0.4em] uppercase text-xs">Management</span>
         <h1 className="text-4xl md:text-5xl font-light text-white leading-tight">
           Client <span className="italic font-serif">Orders</span>
         </h1>
+      </div>
+      <Button
+        type="button"
+        onClick={() => toast("Export feature coming soon")}
+        className="rounded-none bg-white/10 border border-white/20 text-white text-[9px] uppercase tracking-[0.2em] h-10 px-6 font-light hover:bg-white/15 shrink-0"
+      >
+        Export CSV
+      </Button>
       </div>
 
       {orders.length === 0 ? (
