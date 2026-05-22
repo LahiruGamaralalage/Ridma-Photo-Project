@@ -1,24 +1,45 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { z } from "zod";
 
-interface CheckoutItem {
-  name: string;
-  price: number;
-  quantity: number;
-}
+const checkoutSchema = z.object({
+  customerName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 characters"),
+  eventDate: z.string().refine((date) => {
+    const selectedDate = new Date(date);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return selectedDate >= tomorrow;
+  }, "Event date must be in the future"),
+  requirements: z.string().optional(),
+  items: z.array(z.object({
+    productId: z.string(),
+    name: z.string(),
+    price: z.number().positive(),
+    quantity: z.number().int().positive()
+  })).min(1, "Cart cannot be empty")
+});
 
 export async function POST(req: Request) {
   try {
-    const { items, customerName, email, phone, eventDate, requirements } = await req.json();
-
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: "No items in cart" }, { status: 400 });
+    const body = await req.json();
+    
+    // Server-side validation
+    const validation = checkoutSchema.safeParse(body);
+    
+    if (!validation.success) {
+      const errorMessages = validation.error.issues.map(err => err.message).join(", ");
+      return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
+
+    const { items, customerName, email, phone, eventDate, requirements } = validation.data;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      line_items: items.map((item: CheckoutItem) => ({
+      line_items: items.map((item) => ({
         price_data: {
           currency: "usd",
           product_data: {
@@ -28,14 +49,14 @@ export async function POST(req: Request) {
         },
         quantity: item.quantity,
       })),
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?success=true&customer_name=${encodeURIComponent(customerName)}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?customer_name=${encodeURIComponent(customerName)}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
       metadata: {
         customerName,
         email,
         phone,
         eventDate,
-        requirements,
+        requirements: requirements || "",
       },
       customer_email: email,
     });

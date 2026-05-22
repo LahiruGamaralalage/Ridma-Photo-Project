@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
-import { Trash2, ShoppingBag, ArrowRight, ArrowLeft } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, ArrowLeft, Plus, Minus } from "lucide-react";
 
 export default function CartPage() {
-  const { cart, removeFromCart, totalPrice, totalItems } = useCart();
+  const { cart, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
 
   if (totalItems === 0) {
     return (
@@ -71,11 +71,24 @@ export default function CartPage() {
                   </div>
                   
                   <div className="flex justify-between items-end mt-8">
-                    <div className="text-white/40 text-xs tracking-widest uppercase font-light">
-                      Quantity: {item.quantity}
+                    <div className="flex items-center gap-4 bg-zinc-900 border border-white/5 p-1">
+                      <button 
+                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        disabled={item.quantity <= 1}
+                        className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-sm font-light text-white min-w-[1.5rem] text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
                     </div>
                     <div className="text-2xl font-light text-white tracking-tighter">
-                      ${item.price * item.quantity}
+                      ${(item.price * item.quantity).toLocaleString()}
                     </div>
                   </div>
                 </div>

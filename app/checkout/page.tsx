@@ -3,23 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShoppingCart, CheckCircle2, AlertCircle, Loader2, ArrowLeft, Calendar, User, Mail, Phone, MessageSquare } from "lucide-react";
+import { ShoppingCart, AlertCircle, Loader2, ArrowLeft, Calendar, User, Mail, Phone, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
-
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-
 import { Suspense } from "react";
-
 import { buttonVariants } from "@/components/ui/button";
 
 function CheckoutContent() {
-  const { cart, totalPrice, clearCart } = useCart();
-  const searchParams = useSearchParams();
-  const success = searchParams.get("success");
-  const canceled = searchParams.get("canceled");
-  const customerName = searchParams.get("customer_name");
+  const { cart, totalPrice } = useCart();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,19 +20,8 @@ function CheckoutContent() {
     requirements: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (success === "true") {
-      setIsSuccess(true);
-      clearCart();
-    }
-    if (canceled === "true") {
-      setError("Payment was cancelled. You can try again when you're ready.");
-    }
-  }, [success, canceled, clearCart]);
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -75,7 +55,6 @@ function CheckoutContent() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
-    // Clear field error when user starts typing
     if (fieldErrors[id]) {
       setFieldErrors(prev => {
         const newErrors = { ...prev };
@@ -136,35 +115,6 @@ function CheckoutContent() {
     }
   };
 
-  if (isSuccess) {
-    return (
-      <div className="bg-background min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full text-center space-y-10 animate-in fade-in zoom-in-95 duration-1000">
-          <div className="flex justify-center">
-            <div className="w-24 h-24 border border-white/10 rounded-full flex items-center justify-center animate-bounce">
-              <CheckCircle2 className="w-12 h-12 text-white" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-light text-white leading-tight">Order <span className="italic font-serif">Confirmed</span></h1>
-            <p className="text-lg md:text-xl text-white/50 font-light leading-relaxed max-w-lg mx-auto">
-              Thank you, <span className="text-white">{customerName || formData.name}</span>. Your vision is now our mission. We&apos;ll contact you shortly to finalize the details.
-            </p>
-          </div>
-          <button 
-            onClick={() => window.location.href = "/"}
-            className={buttonVariants({ 
-              size: "lg", 
-              className: "rounded-none bg-white text-black hover:bg-white/90 px-12 py-8 text-sm tracking-widest uppercase cursor-pointer relative z-50" 
-            })}
-          >
-            Return Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (cart.length === 0) {
     return (
       <div className="bg-background min-h-screen flex items-center justify-center p-6">
@@ -194,7 +144,6 @@ function CheckoutContent() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-          {/* Checkout Form */}
           <section className="space-y-12">
             <div className="space-y-12">
               <div className="space-y-2">
@@ -204,7 +153,6 @@ function CheckoutContent() {
               
               <form id="checkout-form" onSubmit={handleSubmit} className="space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Name */}
                   <div className="space-y-3">
                     <label htmlFor="name" className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light flex items-center gap-2">
                       <User className="w-3 h-3" /> Full Name
@@ -218,7 +166,6 @@ function CheckoutContent() {
                       className="rounded-none border-white/10 bg-zinc-950 text-white h-14 focus-visible:ring-white/20"
                     />
                   </div>
-                  {/* Email */}
                   <div className="space-y-3">
                     <label htmlFor="email" className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light flex items-center gap-2">
                       <Mail className="w-3 h-3" /> Email Address
@@ -237,7 +184,6 @@ function CheckoutContent() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Phone */}
                   <div className="space-y-3">
                     <label htmlFor="phone" className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light flex items-center gap-2">
                       <Phone className="w-3 h-3" /> Phone Number
@@ -253,7 +199,6 @@ function CheckoutContent() {
                     />
                     {fieldErrors.phone && <p className="text-[10px] text-red-500/80 tracking-wide uppercase font-light">{fieldErrors.phone}</p>}
                   </div>
-                  {/* Date */}
                   <div className="space-y-3">
                     <label htmlFor="eventDate" className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light flex items-center gap-2">
                       <Calendar className="w-3 h-3" /> Preferred Date
@@ -271,7 +216,6 @@ function CheckoutContent() {
                   </div>
                 </div>
 
-                {/* Requirements */}
                 <div className="space-y-3">
                   <label htmlFor="requirements" className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light flex items-center gap-2">
                     <MessageSquare className="w-3 h-3" /> Specific Requirements
@@ -314,7 +258,6 @@ function CheckoutContent() {
             )}
           </section>
 
-          {/* Order Summary */}
           <section className="space-y-8">
             <div className="p-10 border border-white/5 bg-zinc-950 space-y-10 sticky top-32">
               <div className="flex items-center gap-3 border-b border-white/5 pb-6">

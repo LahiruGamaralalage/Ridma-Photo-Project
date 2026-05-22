@@ -15,6 +15,7 @@ export interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   totalItems: number;
@@ -48,7 +49,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (isExisting) {
       toast.info(`${product.title} is already in your cart`, {
-        description: "Each service can only be added once."
+        description: "You can adjust quantities in the cart page."
       });
       return;
     }
@@ -57,6 +58,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success(`${product.title} added to cart`, {
       description: "View your selections in the cart page."
     });
+  };
+
+  const updateQuantity = (id: string, quantity: number) => {
+    if (quantity < 1) return;
+    setCart(prevCart => 
+      prevCart.map(item => 
+        item.id === id ? { ...item, quantity } : item
+      )
+    );
   };
 
   const removeFromCart = (id: string) => {
@@ -76,7 +86,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart, totalItems, totalPrice }}>
       {children}
     </CartContext.Provider>
   );

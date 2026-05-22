@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { 
   Table, 
   TableBody, 
@@ -10,6 +10,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Dialog, 
   DialogContent, 
@@ -17,12 +18,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { User, Mail, Phone, Calendar, ClipboardList, ShoppingBag } from "lucide-react";
+import { User, Mail, Phone, Calendar, ClipboardList, ShoppingBag, Search, Filter, X, RotateCcw, Download } from "lucide-react";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
+  // Filter States
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -41,6 +48,87 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => {
+      // Search filter (Name or Email)
+      const matchesSearch = 
+        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.email.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Status filter
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      
+      // Date range filter
+      const orderDate = new Date(order.createdAt);
+      orderDate.setHours(0, 0, 0, 0);
+      
+      let matchesDate = true;
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (orderDate < from) matchesDate = false;
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(0, 0, 0, 0);
+        if (orderDate > to) matchesDate = false;
+      }
+      
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [orders, searchTerm, statusFilter, dateFrom, dateTo]);
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  };
+
+  const exportToCSV = () => {
+    if (filteredOrders.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const headers = [
+      "Order ID",
+      "Customer Name",
+      "Email",
+      "Phone",
+      "Event Date",
+      "Items",
+      "Total Price",
+      "Status",
+      "Created At"
+    ];
+
+    const csvRows = filteredOrders.map(order => [
+      order._id,
+      `"${order.customerName}"`,
+      order.email,
+      order.phone,
+      order.eventDate,
+      `"${order.items.map((i: any) => `${i.name} (x${i.quantity})`).join(", ")}"`,
+      order.totalPrice,
+      order.status,
+      new Date(order.createdAt).toLocaleString()
+    ].join(","));
+
+    const csvContent = [headers.join(","), ...csvRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `ridma_orders_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("CSV Exported successfully");
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
@@ -72,17 +160,107 @@ export default function OrdersPage() {
   );
 
   return (
-    <div className="space-y-12">
-      <div className="space-y-4">
-        <span className="text-white/40 tracking-[0.4em] uppercase text-xs">Management</span>
-        <h1 className="text-4xl md:text-5xl font-light text-white leading-tight">
-          Client <span className="italic font-serif">Orders</span>
-        </h1>
+    <div className="space-y-12 pb-20">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-4">
+          <span className="text-white/40 tracking-[0.4em] uppercase text-xs">Management</span>
+          <h1 className="text-4xl md:text-5xl font-light text-white leading-tight">
+            Client <span className="italic font-serif">Orders</span>
+          </h1>
+        </div>
+        <Button 
+          onClick={exportToCSV}
+          disabled={filteredOrders.length === 0}
+          className="rounded-none bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black transition-all h-14 px-8 uppercase tracking-[0.2em] text-[10px] group"
+        >
+          <Download className="w-4 h-4 mr-3 text-white/40 group-hover:text-black transition-colors" />
+          Export CSV
+        </Button>
+      </div>
+
+      {/* Filters UI */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-8 border border-white/5 bg-zinc-950/50 backdrop-blur-sm">
+        <div className="space-y-3">
+          <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-light flex items-center gap-2">
+            <Search className="w-3 h-3" /> Search Records
+          </label>
+          <div className="relative group">
+            <Input 
+              placeholder="Name or email..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="rounded-none border-white/10 bg-zinc-950 text-white h-12 focus-visible:ring-white/20 pl-4 pr-10"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-light flex items-center gap-2">
+            <Filter className="w-3 h-3" /> Status
+          </label>
+          <select 
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full rounded-none border border-white/10 bg-zinc-950 text-white h-12 px-4 focus:ring-1 focus:ring-white/20 outline-none appearance-none text-sm font-light tracking-wide"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div className="space-y-3 lg:col-span-2">
+          <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-light flex items-center gap-2">
+            <Calendar className="w-3 h-3" /> Date Range
+          </label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Input 
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="rounded-none border-white/10 bg-zinc-950 text-white h-12 focus-visible:ring-white/20 [color-scheme:dark] flex-grow"
+            />
+            <Input 
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="rounded-none border-white/10 bg-zinc-950 text-white h-12 focus-visible:ring-white/20 [color-scheme:dark] flex-grow"
+            />
+            {(searchTerm || statusFilter !== "all" || dateFrom || dateTo) && (
+              <Button 
+                variant="outline"
+                onClick={resetFilters}
+                className="rounded-none border-white/10 text-white/40 hover:text-white hover:bg-white/5 h-12 px-6 font-light shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-2" /> Reset
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {orders.length === 0 ? (
         <div className="border border-white/5 bg-zinc-950 p-20 text-center">
           <p className="text-white/20 uppercase tracking-widest text-xs font-light italic">No orders found in the system.</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="border border-white/5 bg-zinc-950 p-20 text-center space-y-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-white/5 mb-2">
+            <Search className="w-5 h-5 text-white/10" />
+          </div>
+          <p className="text-white/20 uppercase tracking-widest text-xs font-light italic">No orders match your current filters.</p>
+          <Button variant="link" onClick={resetFilters} className="text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors">
+            Clear all filters
+          </Button>
         </div>
       ) : (
         <div className="bg-zinc-950 border border-white/5 overflow-hidden rounded-none overflow-x-auto">
@@ -98,7 +276,7 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <TableRow 
                   key={order._id} 
                   className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
